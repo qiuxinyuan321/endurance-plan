@@ -1,27 +1,39 @@
 # Endurance Plan / 续航计划
 
-**Claude Code Token Optimization Toolkit** - Make every token count.
+**Claude Code Token Optimization + Intelligent Memory Toolkit**
 
-A comprehensive token optimization system for [Claude Code](https://code.claude.com/) that reduces token consumption by **60-90%** through CLI output compression, skill tiering, intelligent model routing, and thinking budget control.
+A comprehensive optimization system for [Claude Code](https://code.claude.com/) that reduces token consumption by **60-90%** and provides five-tier intelligent memory through CLI compression, skill tiering, model routing, thinking budget control, and multi-backend MCP memory.
 
 ## Problem
 
-Claude Code consumes ~$6-12/day per developer. Major token sinks:
+Claude Code consumes ~$6-12/day per developer. Major cost sinks:
 - **CLI output**: Full build/test output floods the context window
 - **Skill descriptions**: 150+ skills inject ~10K tokens into every system prompt
 - **Model overkill**: Opus for everything, including simple file searches
 - **Thinking overhead**: Maximum thinking budget on trivial tasks
+- **Memory fragmentation**: No unified strategy for cross-session knowledge persistence
 
 ## Solution
 
-| Component | What It Does | Token Savings |
-|-----------|-------------|---------------|
+### Token Optimization
+
+| Component | What It Does | Savings |
+|-----------|-------------|---------|
 | **RTK** | CLI output compression (smart filters per command) | 60-90% per command |
 | **Skill Tiering** | 23 always-on + 158 on-demand via skill-loader | ~8K tokens/turn |
 | **Model Routing** | Sonnet/Haiku subagents for lightweight tasks | ~60% cost on delegated tasks |
 | **Thinking Budget** | `effortLevel: high` default, max on demand | Thousands of output tokens/request |
 | **.claudeignore** | Exclude build artifacts, lock files, models | Prevents context pollution |
-| **Memory Architecture** | Three-tier: index -> topic files -> semantic search | Minimal always-on injection |
+
+### Five-Tier Memory
+
+| Tier | Backend | Best For |
+|------|---------|----------|
+| **Core** | MEMORY.md (always loaded) | Quick index, <200 lines |
+| **Recall** | Topic markdown files | Structured notes, on-demand Read |
+| **Vector** | [AIVectorMemory](https://github.com/Edlineas/aivectormemory) MCP | Semantic search + issue tracking + task management |
+| **Graph** | [MemoryGraph](https://github.com/memory-graph/memory-graph) MCP | Causal chains + relationship tracking + multi-hop reasoning |
+| **Code Intel** | [mnemex](https://github.com/mnemex/mnemex) MCP | AST index + code definitions + references |
 
 ## Quick Start
 
@@ -48,16 +60,9 @@ Then restart Claude Code.
 A binary tool that wraps CLI commands and compresses their output before it enters the context window.
 
 ```bash
-# Instead of: npm test (raw output floods context)
 rtk npm test          # Compressed: only failures + summary
-
-# Error-only mode
 rtk err cargo build   # Show only errors
-
-# Smart summary
 rtk summary git log   # AI-compressed summary
-
-# Check savings
 rtk gain              # Show compression statistics
 ```
 
@@ -70,10 +75,7 @@ Split skills into always-on (Tier 1) and on-demand (Tier 2):
 - **Tier 1** (23 skills): Core coding, memory, search, communication, tools
 - **Tier 2** (158 skills): Loaded by `skill-loader` when triggered by keywords
 
-The `skill-loader` skill contains a compact index (~2K tokens) of all disabled skills. When a user request matches a Tier 2 skill, it reads the skill's `SKILL.md` and follows its instructions.
-
-```
-# Customize Tier 1 list in scripts/tier-skills.py
+```bash
 python scripts/tier-skills.py              # Apply tiering
 python scripts/tier-skills.py --dry-run    # Preview changes
 python scripts/rollback.py                 # Restore from backup
@@ -89,11 +91,9 @@ Three subagent definitions optimized for cost:
 | `quick-task` | Sonnet | Simple code changes, formatting |
 | `test-runner` | Haiku | Run tests, report pass/fail |
 
-CLAUDE.md includes routing guidance so Claude delegates appropriately.
-
 ### Thinking Budget Control
 
-Default `effortLevel: high` balances quality and cost. Use `/effort` to adjust per-task:
+Default `effortLevel: high` balances quality and cost:
 
 | Level | When to Use |
 |-------|-------------|
@@ -101,28 +101,42 @@ Default `effortLevel: high` balances quality and cost. Use `/effort` to adjust p
 | `high` | Daily coding (default) |
 | `low` | Simple queries, status checks |
 
+### Memory System
+
+#### AIVectorMemory (Vector Memory)
+- **Semantic search**: Find "database timeout" when searching "MySQL connection pool pitfall"
+- **Issue tracking**: Full lifecycle from discovery to resolution
+- **Task management**: Multi-step requirement decomposition
+- **Smart dedup**: Auto-merges memories with >0.95 similarity
+- **Web dashboard**: 3D vector visualization at `localhost:9080`
+
+#### MemoryGraph (Graph Memory)
+- **Relationship tracking**: 7 types (causal, solution, context, learning, similarity, workflow, quality)
+- **Multi-hop reasoning**: Trace causal chains across decisions
+- **Solution evolution**: Track how approaches change over time (SUPERSEDED_BY)
+- **Extended mode**: 12 tools for advanced querying
+
+#### Memory Routing Guide
+
+| Need | Tool |
+|------|------|
+| Store cross-session knowledge | AIVectorMemory `remember` |
+| Semantic similarity search | AIVectorMemory `recall` |
+| Track bugs/issues | AIVectorMemory `track` |
+| Decompose tasks | AIVectorMemory `task` |
+| Record causal relationships | MemoryGraph `create_entities` + `create_relations` |
+| Multi-hop reasoning | MemoryGraph `search_nodes` + `open_nodes` |
+| Code definitions/references | mnemex `define` / `references` / `search` |
+
 ### .claudeignore Template
 
-Comprehensive exclusion list for:
-- Package managers: `node_modules/`, `vendor/`, `.pnpm/`
-- Build artifacts: `dist/`, `build/`, `.next/`
-- Lock files: `package-lock.json`, `pnpm-lock.yaml`, etc.
-- AI/ML models: `*.onnx`, `*.safetensors`, `*.gguf`
-- Caches: `__pycache__/`, `.turbo/`, `.cache/`
-
-### Memory Architecture
-
-Three-tier memory system:
-
-1. **MEMORY.md** (always loaded): Compact index, <200 lines, links to topic files
-2. **Topic files** (on-demand): `user-profile.md`, `feedback.md`, `decisions.md`, `patterns.md`
-3. **Semantic search** (MCP): mnemex or similar vector search for long-term recall
+Comprehensive exclusion list: node_modules, build artifacts, lock files, AI/ML models, caches, IDE configs.
 
 ## Architecture
 
 ```
 ~/.claude/
-├── CLAUDE.md                    # RTK instructions + model routing + thinking budget
+├── CLAUDE.md                    # RTK + model routing + thinking budget + memory governance
 ├── settings.json                # effortLevel: high, model config
 ├── agents/
 │   ├── research.md              # Sonnet - codebase exploration
@@ -134,6 +148,12 @@ Three-tier memory system:
 │       └── manifest.json        # enabled: true, priority: 100
 └── skills-archive/
     └── pre-tiering-YYYYMMDD/    # Backup of original manifests
+
+MCP Servers (configured in ~/.claude.json):
+├── aivectormemory               # Vector memory + issue/task
+├── memorygraph                  # Graph memory + relationships
+├── mnemex                       # Code intelligence
+└── github                       # GitHub API
 ```
 
 ## Token Savings Summary
@@ -145,28 +165,29 @@ Three-tier memory system:
 | Model cost per delegated task | 100% (Opus) | **~40%** (Sonnet/Haiku) |
 | Thinking tokens per simple task | Maximum | **~50%** (high vs max) |
 | Memory context injection | Variable | **<200 lines** fixed |
+| Cross-session knowledge | Lost | **Persistent** (vector + graph) |
 
 ## Rollback
 
 Every operation is reversible:
 
 ```bash
-# Restore all skill manifests from backup
-python scripts/rollback.py
-
-# Restore from specific backup
-python scripts/rollback.py ~/.claude/skills-archive/pre-tiering-20260406/
-
-# Remove RTK (just delete the binary)
-rm ~/.local/bin/rtk
-
-# Revert settings: change effortLevel back to "max" in settings.json
+python scripts/rollback.py                                    # Restore skill manifests
+python scripts/rollback.py ~/.claude/skills-archive/pre-tiering-20260406/  # From specific backup
+rm ~/.local/bin/rtk                                           # Remove RTK
+pip uninstall aivectormemory memorygraphMCP                   # Remove memory backends
 ```
+
+## Credits
+
+This toolkit integrates and builds upon:
+- [AIVectorMemory](https://github.com/Edlineas/aivectormemory) by Edlineas - Vector memory + issue tracking
+- [MemoryGraph](https://github.com/memory-graph/memory-graph) by memory-graph - Graph-based relationship memory
 
 ## Requirements
 
 - [Claude Code](https://code.claude.com/) CLI installed
-- Python 3.8+ (for tiering scripts)
+- Python 3.10+ (for memory backends and tiering scripts)
 - Windows 10/11, macOS, or Linux
 
 ## License

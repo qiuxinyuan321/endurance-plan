@@ -1,0 +1,21 @@
+{
+  "_comment": "Endurance Plan - MCP server template. Merge into ~/.claude.json mcpServers section.",
+  "aivectormemory": {
+    "_comment": "Vector memory + issue tracking + task management. Install: pip install aivectormemory",
+    "command": "python",
+    "args": ["-m", "aivectormemory"],
+    "type": "stdio"
+  },
+  "memorygraph": {
+    "_comment": "Graph memory with relationship tracking. Install: pip install memorygraphMCP",
+    "command": "memorygraph",
+    "args": ["--profile", "extended"],
+    "type": "stdio"
+  },
+  "mnemex": {
+    "_comment": "Code intelligence via Ollama embeddings. Install: npm i -g mnemex + ollama + nomic-embed-text",
+    "args": ["/c", "bun", "path/to/mnemex/dist/index.js", "--mcp"],
+    "command": "cmd",
+    "type": "stdio"
+  }
+}

@@ -26,3 +26,23 @@ RTK 有专用过滤器就压缩输出，没有就直接透传，始终安全。
 
 # 压缩保留策略
 压缩时必须保留：修改过的文件完整列表、测试命令、当前任务状态、关键架构决策。不要丢失正在进行的工作上下文。
+
+# 记忆治理
+
+五层记忆架构：
+- **Core**（MEMORY.md）：始终注入，<200行索引
+- **Recall**（topic files）：按需 Read，不全量注入
+- **Vector**（AIVectorMemory MCP）：语义向量记忆 + issue tracking + task management
+- **Graph**（MemoryGraph MCP）：图数据库记忆，因果链 + 方案演化 + 多跳推理
+- **Code Intel**（mnemex MCP）：代码语义搜索，定义/引用/调用图
+
+记忆工具选择：
+- 存储跨会话知识 → AIVectorMemory `remember`
+- 语义检索记忆 → AIVectorMemory `recall`
+- 跟踪 bug/issue → AIVectorMemory `track`
+- 分解任务 → AIVectorMemory `task`
+- 记录因果关系/方案演化 → MemoryGraph `create_entities` + `create_relations`
+- 多跳推理 → MemoryGraph `search_nodes` + `open_nodes`
+- 代码定义/引用 → mnemex `define`/`references`/`search`
+
+MEMORY.md 只当索引（链接+一句 hook），不放正文。写入前先检查有无可更新的现有条目。

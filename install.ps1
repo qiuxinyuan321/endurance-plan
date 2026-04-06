@@ -10,7 +10,7 @@ Write-Host "Claude Code Token Optimization Toolkit"
 Write-Host ""
 
 # 1. Install RTK
-Write-Host "[1/5] Installing RTK..." -ForegroundColor Yellow
+Write-Host "[1/6] Installing RTK..." -ForegroundColor Yellow
 $RtkDir = "$env:USERPROFILE\.local\bin"
 New-Item -ItemType Directory -Force -Path $RtkDir | Out-Null
 Copy-Item "$ScriptDir\rtk\rtk.exe" "$RtkDir\rtk.exe" -Force
@@ -23,23 +23,40 @@ if ($userPath -notlike "*$RtkDir*") {
     Write-Host "  Added $RtkDir to PATH"
 }
 
-# 2. Install skill-loader
-Write-Host "[2/5] Installing skill-loader..." -ForegroundColor Yellow
+# 2. Install AIVectorMemory + MemoryGraph
+Write-Host "[2/6] Installing memory backends..." -ForegroundColor Yellow
+$avmCheck = pip show aivectormemory 2>$null
+if (-not $avmCheck) {
+    pip install aivectormemory --quiet
+    Write-Host "  Installed AIVectorMemory"
+} else {
+    Write-Host "  AIVectorMemory already installed"
+}
+$mgCheck = pip show memorygraphMCP 2>$null
+if (-not $mgCheck) {
+    pip install memorygraphMCP --quiet
+    Write-Host "  Installed MemoryGraph"
+} else {
+    Write-Host "  MemoryGraph already installed"
+}
+
+# 3. Install skill-loader
+Write-Host "[3/6] Installing skill-loader..." -ForegroundColor Yellow
 $LoaderDir = "$ClaudeDir\skills\skill-loader"
 New-Item -ItemType Directory -Force -Path $LoaderDir | Out-Null
 Copy-Item "$ScriptDir\skill-loader\SKILL.md" "$LoaderDir\" -Force
 Copy-Item "$ScriptDir\skill-loader\manifest.json" "$LoaderDir\" -Force
 Write-Host "  Installed to $LoaderDir"
 
-# 3. Install agents
-Write-Host "[3/5] Installing subagent definitions..." -ForegroundColor Yellow
+# 4. Install agents
+Write-Host "[4/6] Installing subagent definitions..." -ForegroundColor Yellow
 $AgentsDir = "$ClaudeDir\agents"
 New-Item -ItemType Directory -Force -Path $AgentsDir | Out-Null
 Get-ChildItem "$ScriptDir\agents\*.md" | Copy-Item -Destination $AgentsDir -Force
 Write-Host "  Installed research.md, quick-task.md, test-runner.md"
 
-# 4. Copy templates
-Write-Host "[4/5] Copying templates..." -ForegroundColor Yellow
+# 5. Copy templates
+Write-Host "[5/6] Copying templates..." -ForegroundColor Yellow
 if (-not (Test-Path "$ClaudeDir\CLAUDE.md")) {
     Copy-Item "$ScriptDir\templates\CLAUDE.md.template" "$ClaudeDir\CLAUDE.md"
     Write-Host "  Created CLAUDE.md"
@@ -47,8 +64,8 @@ if (-not (Test-Path "$ClaudeDir\CLAUDE.md")) {
     Write-Host "  CLAUDE.md already exists, skipping"
 }
 
-# 5. Run skill tiering
-Write-Host "[5/5] Running skill tiering..." -ForegroundColor Yellow
+# 6. Run skill tiering
+Write-Host "[6/6] Running skill tiering..." -ForegroundColor Yellow
 if (Test-Path "$ClaudeDir\skills") {
     python "$ScriptDir\scripts\tier-skills.py"
 } else {
@@ -61,9 +78,13 @@ Write-Host "Restart Claude Code to apply changes."
 Write-Host ""
 Write-Host "Components installed:"
 Write-Host "  - RTK CLI output compression"
+Write-Host "  - AIVectorMemory (vector memory + issue tracking + task management)"
+Write-Host "  - MemoryGraph (graph memory + causal reasoning + relationship tracking)"
 Write-Host "  - Skill Loader (on-demand skill routing)"
 Write-Host "  - Lightweight subagents (research/quick-task/test-runner)"
-Write-Host "  - CLAUDE.md with model routing + thinking budget guidance"
+Write-Host "  - CLAUDE.md with model routing + thinking budget + memory governance"
 Write-Host "  - Skill tiering (Tier1 always-on + Tier2 on-demand)"
+Write-Host ""
+Write-Host "Next: Add AIVectorMemory MCP config to ~/.claude.json (see templates/mcp-servers.json.template)"
 Write-Host ""
 Write-Host "Rollback: python scripts\rollback.py"
