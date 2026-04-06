@@ -20,9 +20,11 @@ Claude Code consumes ~$6-12/day per developer. Major cost sinks:
 | Component | What It Does | Savings |
 |-----------|-------------|---------|
 | **RTK** | CLI output compression (smart filters per command) | 60-90% per command |
+| **LLMLingua** | Input prompt compression via BERT (PostToolUse hook) | 2-5x on large files |
 | **Skill Tiering** | 23 always-on + 158 on-demand via skill-loader | ~8K tokens/turn |
 | **Model Routing** | Sonnet/Haiku subagents for lightweight tasks | ~60% cost on delegated tasks |
 | **Thinking Budget** | `effortLevel: high` default, max on demand | Thousands of output tokens/request |
+| **Hooks** | Test output filter + safety guard | 90%+ on test output |
 | **.claudeignore** | Exclude build artifacts, lock files, models | Prevents context pollution |
 
 ### Five-Tier Memory
@@ -132,12 +134,49 @@ Default `effortLevel: high` balances quality and cost:
 
 Comprehensive exclusion list: node_modules, build artifacts, lock files, AI/ML models, caches, IDE configs.
 
+### Hooks System
+
+Three production-ready hooks for token optimization and safety:
+
+| Hook | Type | What It Does |
+|------|------|-------------|
+| **safety-guard.sh** | PreToolUse (Bash) | Blocks `rm -rf /`, fork bombs, warns on `git push --force` |
+| **filter-test-output.sh** | PreToolUse (Bash) | Filters test output to failures + summary only |
+| **compress-input.py** | PostToolUse (Read) | LLMLingua-2 compression for large file reads (optional) |
+
+```bash
+# Install hooks
+mkdir -p ~/.claude/hooks
+cp hooks/*.sh hooks/*.py ~/.claude/hooks/
+# Then merge templates/hooks.json.template into ~/.claude/settings.json
+```
+
+### LLMLingua Input Compression (Optional)
+
+Bidirectional compression pipeline with RTK:
+
+```
+File read ──LLMLingua 2-5x──→ Claude context ──RTK 97%──→ CLI output
+```
+
+- Uses `microsoft/llmlingua-2-bert-base-multilingual-cased-meetingbank` (~500MB, no GPU)
+- Compresses code and docs while preserving structure
+- Configurable threshold and compression rate
+
+```bash
+pip install llmlingua  # ~500MB model downloads on first run
+```
+
 ## Architecture
 
 ```
 ~/.claude/
 ├── CLAUDE.md                    # RTK + model routing + thinking budget + memory governance
-├── settings.json                # effortLevel: high, model config
+├── settings.json                # effortLevel: high, model config, hooks
+├── hooks/
+│   ├── safety-guard.sh          # Block dangerous commands
+│   ├── filter-test-output.sh    # Filter test output to failures
+│   └── compress-input.py        # LLMLingua input compression (optional)
 ├── agents/
 │   ├── research.md              # Sonnet - codebase exploration
 │   ├── quick-task.md            # Sonnet - simple changes
@@ -161,6 +200,8 @@ MCP Servers (configured in ~/.claude.json):
 | Metric | Before | After |
 |--------|--------|-------|
 | CLI output tokens | 100% raw | **3-10%** (RTK compressed) |
+| Input file tokens | 100% raw | **20-50%** (LLMLingua compressed) |
+| Test output tokens | 100% raw | **~10%** (hook filtered) |
 | System prompt skills | ~10K tokens/turn | **~2K tokens/turn** |
 | Model cost per delegated task | 100% (Opus) | **~40%** (Sonnet/Haiku) |
 | Thinking tokens per simple task | Maximum | **~50%** (high vs max) |
@@ -183,6 +224,9 @@ pip uninstall aivectormemory memorygraphMCP                   # Remove memory ba
 This toolkit integrates and builds upon:
 - [AIVectorMemory](https://github.com/Edlineas/aivectormemory) by Edlineas - Vector memory + issue tracking
 - [MemoryGraph](https://github.com/memory-graph/memory-graph) by memory-graph - Graph-based relationship memory
+- [LLMLingua](https://github.com/microsoft/LLMLingua) by Microsoft Research - Token-level prompt compression
+- [awesome-claude-code](https://github.com/hesreallyhim/awesome-claude-code) - Community hooks and patterns
+- [OpenHands](https://github.com/All-Hands-AI/OpenHands) - Safety hook architecture inspiration
 
 ## Requirements
 

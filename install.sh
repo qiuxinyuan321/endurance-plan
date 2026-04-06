@@ -44,13 +44,20 @@ cp "$SCRIPT_DIR/skill-loader/manifest.json" "$LOADER_DIR/"
 echo "  Installed to $LOADER_DIR"
 
 # 4. Install agents
-echo "[4/6] Installing subagent definitions..."
+echo "[4/7] Installing subagent definitions..."
 mkdir -p "$CLAUDE_DIR/agents"
 cp "$SCRIPT_DIR/agents/"*.md "$CLAUDE_DIR/agents/"
 echo "  Installed research.md, quick-task.md, test-runner.md"
 
-# 5. Copy templates (don't overwrite existing)
-echo "[5/6] Copying templates..."
+# 5. Install hooks
+echo "[5/7] Installing hooks..."
+mkdir -p "$CLAUDE_DIR/hooks"
+cp "$SCRIPT_DIR/hooks/"* "$CLAUDE_DIR/hooks/"
+chmod +x "$CLAUDE_DIR/hooks/"*.sh
+echo "  Installed safety-guard.sh, filter-test-output.sh, compress-input.py"
+
+# 6. Copy templates (don't overwrite existing)
+echo "[6/7] Copying templates..."
 if [ ! -f "$CLAUDE_DIR/CLAUDE.md" ]; then
     cp "$SCRIPT_DIR/templates/CLAUDE.md.template" "$CLAUDE_DIR/CLAUDE.md"
     echo "  Created CLAUDE.md"
@@ -58,8 +65,8 @@ else
     echo "  CLAUDE.md already exists, skipping (template at templates/CLAUDE.md.template)"
 fi
 
-# 6. Run skill tiering
-echo "[6/6] Running skill tiering..."
+# 7. Run skill tiering
+echo "[7/7] Running skill tiering..."
 if [ -d "$CLAUDE_DIR/skills" ]; then
     python3 "$SCRIPT_DIR/scripts/tier-skills.py"
 else
@@ -75,6 +82,7 @@ echo "  - RTK CLI output compression"
 echo "  - AIVectorMemory (vector memory + issue tracking + task management)"
 echo "  - MemoryGraph (graph memory + causal reasoning + relationship tracking)"
 echo "  - Skill Loader (on-demand skill routing)"
+echo "  - Hooks (safety guard + test filter + optional LLMLingua compression)"
 echo "  - Lightweight subagents (research/quick-task/test-runner)"
 echo "  - CLAUDE.md with model routing + thinking budget + memory governance"
 echo "  - Skill tiering (Tier1 always-on + Tier2 on-demand)"

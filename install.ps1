@@ -49,14 +49,21 @@ Copy-Item "$ScriptDir\skill-loader\manifest.json" "$LoaderDir\" -Force
 Write-Host "  Installed to $LoaderDir"
 
 # 4. Install agents
-Write-Host "[4/6] Installing subagent definitions..." -ForegroundColor Yellow
+Write-Host "[4/7] Installing subagent definitions..." -ForegroundColor Yellow
 $AgentsDir = "$ClaudeDir\agents"
 New-Item -ItemType Directory -Force -Path $AgentsDir | Out-Null
 Get-ChildItem "$ScriptDir\agents\*.md" | Copy-Item -Destination $AgentsDir -Force
 Write-Host "  Installed research.md, quick-task.md, test-runner.md"
 
-# 5. Copy templates
-Write-Host "[5/6] Copying templates..." -ForegroundColor Yellow
+# 5. Install hooks
+Write-Host "[5/7] Installing hooks..." -ForegroundColor Yellow
+$HooksDir = "$ClaudeDir\hooks"
+New-Item -ItemType Directory -Force -Path $HooksDir | Out-Null
+Copy-Item "$ScriptDir\hooks\*" "$HooksDir\" -Force
+Write-Host "  Installed safety-guard.sh, filter-test-output.sh, compress-input.py"
+
+# 6. Copy templates
+Write-Host "[6/7] Copying templates..." -ForegroundColor Yellow
 if (-not (Test-Path "$ClaudeDir\CLAUDE.md")) {
     Copy-Item "$ScriptDir\templates\CLAUDE.md.template" "$ClaudeDir\CLAUDE.md"
     Write-Host "  Created CLAUDE.md"
@@ -64,8 +71,8 @@ if (-not (Test-Path "$ClaudeDir\CLAUDE.md")) {
     Write-Host "  CLAUDE.md already exists, skipping"
 }
 
-# 6. Run skill tiering
-Write-Host "[6/6] Running skill tiering..." -ForegroundColor Yellow
+# 7. Run skill tiering
+Write-Host "[7/7] Running skill tiering..." -ForegroundColor Yellow
 if (Test-Path "$ClaudeDir\skills") {
     python "$ScriptDir\scripts\tier-skills.py"
 } else {
@@ -81,6 +88,7 @@ Write-Host "  - RTK CLI output compression"
 Write-Host "  - AIVectorMemory (vector memory + issue tracking + task management)"
 Write-Host "  - MemoryGraph (graph memory + causal reasoning + relationship tracking)"
 Write-Host "  - Skill Loader (on-demand skill routing)"
+Write-Host "  - Hooks (safety guard + test filter + optional LLMLingua compression)"
 Write-Host "  - Lightweight subagents (research/quick-task/test-runner)"
 Write-Host "  - CLAUDE.md with model routing + thinking budget + memory governance"
 Write-Host "  - Skill tiering (Tier1 always-on + Tier2 on-demand)"
