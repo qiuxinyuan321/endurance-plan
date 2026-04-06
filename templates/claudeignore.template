@@ -1,0 +1,65 @@
+# === 包管理 ===
+node_modules/
+bower_components/
+.pnpm/
+vendor/
+Pods/
+
+# === 构建产物 ===
+dist/
+build/
+.next/
+.nuxt/
+.output/
+out/
+target/
+*.min.js
+*.min.css
+*.bundle.js
+
+# === Lock 文件（大且无分析价值）===
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+Cargo.lock
+bun.lockb
+composer.lock
+
+# === 缓存 ===
+.cache/
+.parcel-cache/
+.turbo/
+.eslintcache
+.tsbuildinfo
+__pycache__/
+*.pyc
+
+# === AI/ML 模型和大文件 ===
+*.onnx
+*.bin
+*.pt
+*.pth
+*.safetensors
+*.gguf
+*.wasm
+
+# === IDE/编辑器 ===
+.idea/
+.vscode/settings.json
+*.swp
+*.swo
+
+# === 日志和临时 ===
+*.log
+logs/
+tmp/
+temp/
+
+# === 工具索引 ===
+.claudemem/
+.mnemex/
+
+# === 系统 ===
+.DS_Store
+Thumbs.db
+desktop.ini

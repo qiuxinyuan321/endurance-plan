@@ -1,0 +1,7 @@
+{
+  "name": "skill-loader",
+  "version": "1.0.0",
+  "enabled": true,
+  "priority": 100,
+  "description": "On-demand skill loader with compact index for 130+ archived skills"
+}

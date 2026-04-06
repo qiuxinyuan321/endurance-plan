@@ -1,0 +1,28 @@
+<!-- rtk-instructions v2 -->
+# RTK - 省 Token 的命令前缀
+
+**所有 Bash 命令前加 `rtk`**，包括链式命令：`rtk git add . && rtk git commit -m "msg"`
+RTK 有专用过滤器就压缩输出，没有就直接透传，始终安全。
+
+常用：`rtk cargo/npm/pnpm/git/gh/docker/kubectl/tsc/vitest/playwright` 等，平均省 60-90% 输出 token。
+分析：`rtk err <cmd>` 只看错误，`rtk summary <cmd>` 智能摘要，`rtk gain` 查看节省统计。
+<!-- /rtk-instructions -->
+
+# 模型路由策略
+
+默认 Opus[1m]。但 subagent 和轻量任务应降级：
+- **Sonnet**：文件搜索、代码审查、测试运行、文档生成、简单 Q&A
+- **Haiku**：格式转换、文本提取、状态检查、模板填充
+- **Opus**：复杂架构设计、多文件重构、深度调试、创意方案
+
+创建 subagent 时，非推理密集型任务指定 `model: sonnet` 或 `model: haiku`。
+
+# 思考预算策略
+
+默认 effortLevel=high（平衡质量和成本）。按需调整：
+- `/effort max`：复杂推理、架构设计、多步调试
+- `/effort high`：日常编码（默认）
+- `/effort low`：简单查询、格式化、状态检查
+
+# 压缩保留策略
+压缩时必须保留：修改过的文件完整列表、测试命令、当前任务状态、关键架构决策。不要丢失正在进行的工作上下文。
