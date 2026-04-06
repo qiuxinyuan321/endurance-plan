@@ -1,0 +1,6 @@
+{"tool_input":{"command":"echo hello world"}}
+{"tool_input":{"command":"ls -la /tmp"}}
+{"tool_input":{"command":"python --version"}}
+{"tool_input":{"command":"git status"}}
+{"tool_input":{"command":"npm run build"}}
+{"tool_input":{"command":"cat /etc/passwd"}}

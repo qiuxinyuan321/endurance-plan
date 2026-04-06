@@ -1,0 +1,5 @@
+{"tool_input":{"command":"npm test"}}
+{"tool_input":{"command":"npx jest --verbose"}}
+{"tool_input":{"command":"pytest -v tests/"}}
+{"tool_input":{"command":"cargo test"}}
+{"tool_input":{"command":"go test ./..."}}

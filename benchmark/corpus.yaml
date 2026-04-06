@@ -1,0 +1,37 @@
+# Workload Corpus — Endurance Plan Benchmark
+# All claims in README must reference workloads defined here.
+
+corpus:
+  cli_output:
+    - id: git-log-100
+      command: "git log --oneline -100"
+      project: "endurance-plan"
+      description: "100-line git log output"
+
+    - id: git-diff-large
+      command: "git diff HEAD~5"
+      project: "endurance-plan"
+      description: "Multi-file diff output"
+
+    - id: rtk-gain
+      command: "rtk gain"
+      project: "local"
+      description: "RTK compression statistics"
+
+  file_read:
+    - id: python-large
+      file: "benchmark/hook-tests/run-hook-tests.py"
+      description: "Python test runner (~100 lines)"
+
+    - id: shell-script
+      file: "install.sh"
+      description: "Shell install script (~100 lines)"
+
+  skill_injection:
+    - id: full-skills
+      count: 181
+      description: "All skills injected into system prompt"
+
+    - id: tier1-skills
+      count: 23
+      description: "Only Tier1 skills injected"

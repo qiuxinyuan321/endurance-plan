@@ -1,0 +1,6 @@
+{"tool_input":{"command":"git push --force origin main"}}
+{"tool_input":{"command":"git reset --hard HEAD~5"}}
+{"tool_input":{"command":"git clean -fd"}}
+{"tool_input":{"command":"npm publish"}}
+{"tool_input":{"command":"docker system prune -a"}}
+{"tool_input":{"command":"DROP TABLE users"}}

@@ -1,30 +1,44 @@
 #!/usr/bin/env bash
 # Endurance Plan - Test Output Filter Hook (PreToolUse on Bash)
-#
-# Filters test runner output to show only failures + summary.
-# Reduces test output from thousands of lines to ~10-50 lines.
-#
-# Hook config in settings.json:
-# {
-#   "hooks": {
-#     "PreToolUse": [{
-#       "matcher": "Bash",
-#       "hooks": [{
-#         "type": "command",
-#         "command": "bash ~/.claude/hooks/filter-test-output.sh"
-#       }]
-#     }]
-#   }
-# }
+# Wraps test commands to show only failures + summary.
+# All JSON output via Python json.dumps — no string interpolation.
 
 input=$(cat)
-cmd=$(echo "$input" | python -c "import sys,json; print(json.load(sys.stdin).get('tool_input',{}).get('command',''))" 2>/dev/null)
 
-# Detect test runner commands
-if [[ "$cmd" =~ ^(npm\ test|npx\ jest|npx\ vitest|pytest|python\ -m\ pytest|go\ test|cargo\ test|dotnet\ test|mvn\ test|gradle\ test) ]]; then
-  # Wrap command to filter output: show only failures + summary
-  filtered_cmd="$cmd 2>&1 | grep -E '(FAIL|FAILED|ERROR|error:|panic:|✗|✕|×|PASS|passed|failed|Total|Tests:|Suites:)' | head -80"
-  echo "{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"allow\",\"updatedInput\":{\"command\":\"$filtered_cmd\"}}}"
-else
-  echo "{}"
-fi
+echo "$input" | python -c "
+import sys, json, re
+
+try:
+    data = json.load(sys.stdin)
+    cmd = data.get('tool_input', {}).get('command', '')
+except Exception:
+    print('{}')
+    sys.exit(0)
+
+TEST_PREFIXES = [
+    r'^npm test',
+    r'^npx jest',
+    r'^npx vitest',
+    r'^pytest',
+    r'^python -m pytest',
+    r'^python3 -m pytest',
+    r'^go test',
+    r'^cargo test',
+    r'^dotnet test',
+    r'^mvn test',
+    r'^gradle test',
+]
+
+is_test = any(re.match(p, cmd) for p in TEST_PREFIXES)
+
+if is_test:
+    grep_pattern = 'FAIL|FAILED|ERROR|error:|panic:|PASS|passed|failed|Total|Tests:|Suites:'
+    filtered = cmd + ' 2>&1 | grep -E \"(' + grep_pattern + ')\" | head -80'
+    print(json.dumps({'hookSpecificOutput': {
+        'hookEventName': 'PreToolUse',
+        'permissionDecision': 'allow',
+        'updatedInput': {'command': filtered}
+    }}))
+else:
+    print('{}')
+" 2>/dev/null || echo "{}"

@@ -1,0 +1,20 @@
+# Metrics Schema — Endurance Plan Benchmark
+
+metric:
+  name: string          # e.g. "rtk_compression_ratio"
+  unit: ratio|tokens|ms|usd
+  direction: lower_is_better|higher_is_better
+  workload_id: string   # references corpus.yaml
+  baseline: number      # value without optimization
+  measured: number      # value with optimization
+  method: measured|estimated|upstream_claim|planned
+  timestamp: ISO8601
+  tool_version: string  # e.g. "rtk v0.34.2"
+  reproduction: string  # command to reproduce
+  notes: string
+
+# Method definitions:
+#   measured       — reproduced locally with documented workload
+#   estimated      — derived from public data (pricing, docs), not measured
+#   upstream_claim — quoted from upstream project, not independently verified
+#   planned        — not yet implemented

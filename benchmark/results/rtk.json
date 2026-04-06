@@ -1,0 +1,31 @@
+{
+  "tool": "rtk",
+  "version": "0.34.2",
+  "timestamp": "2026-04-06",
+  "source": "rtk gain (global scope)",
+  "summary": {
+    "total_commands": 132,
+    "input_tokens": 125600,
+    "output_tokens": 4300,
+    "tokens_saved": 121300,
+    "compression_ratio": 0.966,
+    "note": "96.6% overall, but rtk find (111.7K) is 89% of total input — single outlier"
+  },
+  "excluding_outlier": {
+    "commands": 131,
+    "input_tokens": 13900,
+    "output_tokens": 4300,
+    "compression_ratio": 0.69,
+    "note": "Without rtk find outlier, compression is ~69%"
+  },
+  "by_command": [
+    {"command": "rtk find", "count": 1, "saved": 111700, "avg_pct": 100.0, "note": "OUTLIER: massive directory listing"},
+    {"command": "rtk curl", "count": 1, "saved": 8200, "avg_pct": 94.8},
+    {"command": "rtk ls", "count": 4, "saved": 540, "avg_pct": 78.2},
+    {"command": "rtk git status", "count": 3, "saved": 241, "avg_pct": 67.7},
+    {"command": "rtk git commit", "count": 3, "saved": 169, "avg_pct": 97.7},
+    {"command": "rtk git push", "count": 5, "saved": 99, "avg_pct": 89.3},
+    {"command": "rtk git diff", "count": 1, "saved": 77, "avg_pct": 20.6}
+  ],
+  "conclusion": "README should report: 67-97% range depending on command type. Mean across all commands ~69% excluding outliers."
+}

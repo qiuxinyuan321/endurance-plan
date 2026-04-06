@@ -2,22 +2,19 @@
 
 # 🔋 Endurance Plan / 续航计划
 
-### Claude Code Token Optimization + Intelligent Memory Toolkit
+### Claude Code Token Optimization Toolkit
 
-**目前唯一的全栈 Claude Code 优化方案 — 覆盖 7 个优化维度 + 5 层智能记忆**
+**Reduce Claude Code token consumption through bidirectional compression,<br/>intelligent skill tiering, model routing, and multi-backend memory.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
-[![Platform](https://img.shields.io/badge/Platform-Win%20%7C%20Mac%20%7C%20Linux-brightgreen?style=for-the-badge)](#-quick-start)
+[![Platform](https://img.shields.io/badge/Windows-✓_Full-brightgreen?style=for-the-badge)](#platform-support)
+[![Platform](https://img.shields.io/badge/Mac%2FLinux-Partial-yellow?style=for-the-badge)](#platform-support)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Compatible-blueviolet?style=for-the-badge)](https://code.claude.com/)
 [![GitHub stars](https://img.shields.io/github/stars/qiuxinyuan321/endurance-plan?style=for-the-badge&color=orange)](https://github.com/qiuxinyuan321/endurance-plan/stargazers)
 
 <br/>
 
-[**快速开始**](#-quick-start) · [**核心组件**](#-token-optimization) · [**五层记忆**](#-five-tier-memory) · [**架构**](#-architecture) · [**对比**](#-comparison) · [**鸣谢**](#-credits)
-
-<br/>
-
-> 💡 **Claude Code 每天消耗 ~$6-12/开发者。续航计划通过双向压缩 + 智能分层 + 模型路由 + 多后端记忆，将消耗降低 60-90%。**
+[**Quick Start**](#-quick-start) · [**Components**](#-components) · [**Memory**](#-five-tier-memory) · [**Evidence**](#-evidence) · [**Architecture**](#-architecture) · [**Credits**](#-credits)
 
 </div>
 
@@ -25,48 +22,29 @@
 
 ## ⚡ Problem
 
-| 痛点 | 浪费 |
-|------|------|
-| CLI 输出（build/test）灌满上下文窗口 | 数万 tokens/次 |
-| 150+ 技能描述注入每轮 system prompt | ~10K tokens/轮 |
-| 所有任务都用 Opus | 简单搜索也烧顶级模型 |
-| 最大思考预算跑简单查询 | 数千 tokens 思考输出 |
-| 无跨会话记忆策略 | 重复上下文加载 |
+Claude Code consumes significant tokens per session. Major cost sinks:
 
----
+| Source | Impact |
+|--------|--------|
+| CLI output (build/test/diff) floods context | Thousands of tokens per command |
+| 150+ skill descriptions in system prompt | ~10K tokens/turn |
+| Opus for all tasks, including simple searches | Top-tier model cost on trivial work |
+| Maximum thinking budget on simple queries | Unnecessary thinking tokens |
+| No cross-session knowledge persistence | Repeated context loading |
 
-## 🛡️ Solution Overview
+## 🛡️ Components
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Endurance Plan                           │
-│                                                             │
-│   Input ──LLMLingua 2-5x──→ Context ──RTK 97%──→ Output    │
-│                                                             │
-│   ┌───────────┐  ┌───────────┐  ┌──────────────┐          │
-│   │  Skill    │  │  Model    │  │  Thinking    │          │
-│   │  Tiering  │  │  Routing  │  │  Budget      │          │
-│   │  -8K/turn │  │  -60%cost │  │  -50%tokens  │          │
-│   └───────────┘  └───────────┘  └──────────────┘          │
-│                                                             │
-│   ┌─────────────────────────────────────────────┐          │
-│   │  Five-Tier Memory (Core→Recall→Vector→      │          │
-│   │                     Graph→Code Intel)        │          │
-│   └─────────────────────────────────────────────┘          │
-└─────────────────────────────────────────────────────────────┘
-```
+| Component | What It Does | Savings | Evidence |
+|-----------|-------------|---------|----------|
+| **RTK** | CLI output compression (smart filters per command) | **67-97%** ✓ | [Measured: 132 commands, 125.6K→4.3K tokens](benchmark/results/rtk.json) |
+| **LLMLingua** | Input prompt compression via BERT (optional hook) | **2-5x** † | [Upstream claim, not independently measured](https://github.com/microsoft/LLMLingua) |
+| **Skill Tiering** | 23 always-on + 158 on-demand via skill-loader | **~8K tokens/turn** ~ | Estimated: 181→23 skill descriptions |
+| **Model Routing** | Sonnet/Haiku subagents for lightweight tasks | **~60% cost** ~ | Estimated from public model pricing |
+| **Thinking Budget** | `effortLevel` control (high default) | **~50%** ~ | Estimated: high vs max effort |
+| **Hooks** | Safety guard + test output filter | **varies** | [27 golden tests passing](benchmark/hook-tests/) |
+| **.claudeignore** | Exclude build artifacts, lock files, models | — | Prevents context pollution |
 
-### Token Optimization Components
-
-| Component | What It Does | Savings |
-|-----------|-------------|---------|
-| 🗜️ **RTK** | CLI output compression (smart filters per command) | **60-90%** per command |
-| 📐 **LLMLingua** | Input prompt compression via BERT (PostToolUse hook) | **2-5x** on large files |
-| 📦 **Skill Tiering** | 23 always-on + 158 on-demand via skill-loader | **~8K** tokens/turn |
-| 🤖 **Model Routing** | Sonnet/Haiku subagents for lightweight tasks | **~60%** cost on delegated tasks |
-| 🧠 **Thinking Budget** | `effortLevel: high` default, max on demand | **~50%** thinking tokens |
-| 🪝 **Hooks** | Test output filter + safety guard | **90%+** on test output |
-| 🚫 **.claudeignore** | Exclude build artifacts, lock files, models | Prevents context pollution |
+> **Evidence key**: ✓ = measured locally · ~ = estimated from public data · † = upstream claim, not verified
 
 ---
 
@@ -99,15 +77,21 @@ chmod +x install.sh && ./install.sh
 </tr>
 </table>
 
-> 安装完成后重启 Claude Code 即可生效。
+The installer automatically:
+- Copies hooks and registers them in `settings.json`
+- Registers MCP servers in `.claude.json`
+- Deploys `.claudeignore`
+- Runs skill tiering with backup
+
+Restart Claude Code after installation.
 
 ---
 
-## 🔧 Core Components
+## 🔧 Component Details
 
-### 🗜️ RTK — CLI Output Compression
+### RTK — CLI Output Compression
 
-A binary tool that wraps CLI commands and compresses their output before it enters the context window.
+Binary tool that wraps CLI commands and compresses output before it enters the context window.
 
 ```bash
 rtk npm test          # Compressed: only failures + summary
@@ -116,29 +100,25 @@ rtk summary git log   # AI-compressed summary
 rtk gain              # Show compression statistics
 ```
 
-> **Average compression: 97%** on tested workloads (121K → ~3.6K tokens)
+> **Measured**: 132 commands, 96.6% overall compression (125.6K→4.3K tokens). Per-command range: 20-100% depending on output type. See [benchmark/results/rtk.json](benchmark/results/rtk.json).
 
-### 📦 Skill Tiering
+### Skill Tiering
 
-Split skills into always-on (Tier 1) and on-demand (Tier 2):
-
-- **Tier 1** (23 skills): Core coding, memory, search, communication, tools
-- **Tier 2** (158 skills): Loaded by `skill-loader` when triggered by keywords
+- **Tier 1** (23 skills): Core coding, memory, search, communication, tools — always loaded
+- **Tier 2** (158 skills): Loaded on-demand by `skill-loader` when keywords match
 
 <details>
-<summary>📋 Tiering Commands</summary>
+<summary>Tiering Commands</summary>
 
 ```bash
-python scripts/tier-skills.py              # Apply tiering
+python scripts/tier-skills.py              # Apply tiering (creates backup first)
 python scripts/tier-skills.py --dry-run    # Preview changes
 python scripts/rollback.py                 # Restore from backup
 ```
 
 </details>
 
-### 🤖 Model Routing
-
-Three subagent definitions optimized for cost:
+### Model Routing
 
 | Agent | Model | Use Case |
 |-------|-------|----------|
@@ -146,34 +126,26 @@ Three subagent definitions optimized for cost:
 | `quick-task` | Sonnet | Simple code changes, formatting |
 | `test-runner` | Haiku | Run tests, report pass/fail |
 
-### 🧠 Thinking Budget Control
+### Hooks
 
-Default `effortLevel: high` balances quality and cost:
-
-| Level | When to Use |
-|-------|-------------|
-| `max` | Complex architecture, multi-step debugging |
-| `high` | Daily coding (default) |
-| `low` | Simple queries, status checks |
-
-### 🪝 Hooks System
-
-Three production-ready hooks for token optimization and safety:
+Python-based, injection-safe hooks (all JSON output via `json.dumps`):
 
 | Hook | Type | What It Does |
 |------|------|-------------|
-| **safety-guard.sh** | PreToolUse | Blocks `rm -rf /`, fork bombs, warns on `--force` |
-| **filter-test-output.sh** | PreToolUse | Filters test output to failures + summary only |
-| **compress-input.py** | PostToolUse | LLMLingua-2 compression for large file reads (optional) |
+| `safety-guard.py` | PreToolUse | Blocks `rm -rf /`, fork bombs; warns on `--force` |
+| `filter-test-output.py` | PreToolUse | Filters test output to failures + summary |
+| `compress-input.py` | PostToolUse | LLMLingua-2 compression for large file reads (optional) |
+
+All hooks have [golden tests](benchmark/hook-tests/) (27 test cases).
 
 <details>
-<summary>📋 Hook Installation</summary>
+<summary>LLMLingua Input Compression (Optional)</summary>
 
 ```bash
-mkdir -p ~/.claude/hooks
-cp hooks/*.sh hooks/*.py ~/.claude/hooks/
-# Then merge templates/hooks.json.template into ~/.claude/settings.json
+pip install llmlingua  # ~500MB model download on first run
 ```
+
+**Note**: Each hook invocation loads the 500MB model from scratch (~1-2s latency). This is a known limitation of the hook architecture. A daemon-based approach is planned for future versions.
 
 </details>
 
@@ -183,10 +155,10 @@ cp hooks/*.sh hooks/*.py ~/.claude/hooks/
 
 ```mermaid
 graph LR
-    A["🏠 Core<br/>MEMORY.md<br/><200 lines"] --> B["📂 Recall<br/>Topic Files<br/>On-demand Read"]
-    B --> C["🔍 Vector<br/>AIVectorMemory<br/>Semantic Search"]
-    C --> D["🕸️ Graph<br/>MemoryGraph<br/>Causal Chains"]
-    D --> E["💻 Code Intel<br/>mnemex<br/>AST Index"]
+    A["Core<br/>MEMORY.md<br/><200 lines"] --> B["Recall<br/>Topic Files<br/>On-demand"]
+    B --> C["Vector<br/>AIVectorMemory<br/>Semantic Search"]
+    C --> D["Graph<br/>MemoryGraph<br/>Relationships"]
+    D --> E["Code Intel<br/>mnemex<br/>AST Index"]
 
     style A fill:#4CAF50,color:#fff
     style B fill:#2196F3,color:#fff
@@ -195,16 +167,16 @@ graph LR
     style E fill:#F44336,color:#fff
 ```
 
-| Tier | Backend | Best For |
-|------|---------|----------|
-| **Core** | MEMORY.md (always loaded) | Quick index, <200 lines |
-| **Recall** | Topic markdown files | Structured notes, on-demand Read |
-| **Vector** | [AIVectorMemory](https://github.com/Edlineas/aivectormemory) | Semantic search + issue tracking + task management |
-| **Graph** | [MemoryGraph](https://github.com/memory-graph/memory-graph) | Causal chains + relationships + multi-hop reasoning |
-| **Code Intel** | [mnemex](https://github.com/mnemex/mnemex) | AST index + code definitions + references |
+| Tier | Backend | Best For | Dependency |
+|------|---------|----------|------------|
+| **Core** | MEMORY.md (always loaded) | Quick index, <200 lines | None |
+| **Recall** | Topic markdown files | Structured notes, on-demand Read | None |
+| **Vector** | [AIVectorMemory](https://github.com/Edlineas/aivectormemory) | Semantic search + issue tracking | Python + pip |
+| **Graph** | [MemoryGraph](https://github.com/memory-graph/memory-graph) | Causal chains + multi-hop reasoning | Python + pip |
+| **Code Intel** | [mnemex](https://github.com/mnemex/mnemex) | AST index + code references | bun + Ollama |
 
 <details>
-<summary>🗺️ Memory Routing Guide</summary>
+<summary>Memory Routing Guide</summary>
 
 | Need | Tool |
 |------|------|
@@ -213,29 +185,39 @@ graph LR
 | Track bugs/issues | AIVectorMemory `track` |
 | Decompose tasks | AIVectorMemory `task` |
 | Record causal relationships | MemoryGraph `store_memory` + `create_relationship` |
-| Multi-hop reasoning | MemoryGraph `recall_memories` + `get_related_memories` |
+| Multi-hop reasoning | MemoryGraph `get_related_memories` |
 | Code definitions/references | mnemex `define` / `references` / `search` |
 
-</details>
-
-<details>
-<summary>📐 LLMLingua Input Compression (Optional)</summary>
-
-Bidirectional compression pipeline:
-
-```
-File read ──LLMLingua 2-5x──→ Claude context ──RTK 97%──→ CLI output
-```
-
-- Uses `microsoft/llmlingua-2-bert-base-multilingual-cased-meetingbank` (~500MB, no GPU)
-- Compresses code and docs while preserving structure
-- Configurable threshold and compression rate
-
-```bash
-pip install llmlingua  # ~500MB model downloads on first run
-```
+**Fallback**: If MCP servers are unavailable, memory operations degrade to Recall tier (file-based). Operations never fail silently.
 
 </details>
+
+---
+
+## 📊 Evidence
+
+All claims are tracked in [benchmark/CLAIMS.md](benchmark/CLAIMS.md) with evidence status.
+
+| Metric | Value | Method | Notes |
+|--------|-------|--------|-------|
+| RTK compression (overall) | 96.6% ✓ | Measured | 132 commands, single user workload |
+| RTK compression (per-command median) | ~70% ✓ | Measured | Excluding 1 outlier (111K `find` output) |
+| LLMLingua compression | 2-5x † | Upstream claim | Not independently measured |
+| Skill tiering savings | ~8K tokens/turn ~ | Estimated | 181→23 skill descriptions |
+| Model routing savings | ~60% cost ~ | Estimated | Opus→Sonnet/Haiku pricing delta |
+| Thinking budget savings | ~50% ~ | Estimated | effortLevel high vs max |
+| Hook test coverage | 27/27 ✓ | Measured | [Golden test suite](benchmark/hook-tests/) |
+
+### Platform Support
+
+| Platform | Support Level | RTK | Hooks | MCP | Skills |
+|----------|--------------|-----|-------|-----|--------|
+| **Windows 10/11** | Full | ✓ | ✓ | ✓ | ✓ |
+| **Linux** | Partial — no RTK | ✗ | ✓ | ✓ | ✓ |
+| **macOS** | Partial — no RTK | ✗ | ✓ | ✓ | ✓ |
+| **WSL** | Full via Windows host | ✓ | ✓ | ✓ | ✓ |
+
+RTK is a Windows-only binary. On other platforms, all components except RTK work normally.
 
 ---
 
@@ -244,105 +226,62 @@ pip install llmlingua  # ~500MB model downloads on first run
 ```
 ~/.claude/
 ├── CLAUDE.md                    # RTK + model routing + thinking budget + memory governance
-├── settings.json                # effortLevel, model config, hooks
+├── settings.json                # effortLevel, hooks registration
 ├── hooks/
-│   ├── safety-guard.sh          # 🛡️ Block dangerous commands
-│   ├── filter-test-output.sh    # 🧹 Filter test output
-│   └── compress-input.py        # 📐 LLMLingua compression (optional)
+│   ├── safety-guard.py          # Block/warn dangerous commands
+│   ├── filter-test-output.py    # Filter test output
+│   └── compress-input.py        # LLMLingua compression (optional)
 ├── agents/
-│   ├── research.md              # 🔍 Sonnet - codebase exploration
-│   ├── quick-task.md            # ⚡ Sonnet - simple changes
-│   └── test-runner.md           # 🧪 Haiku - test execution
-├── skills/
-│   └── skill-loader/
-│       ├── SKILL.md             # 📦 On-demand skill index + routing
-│       └── manifest.json        # enabled: true, priority: 100
-└── skills-archive/
-    └── pre-tiering-YYYYMMDD/    # 📋 Backup of original manifests
+│   ├── research.md              # Sonnet - codebase exploration
+│   ├── quick-task.md            # Sonnet - simple changes
+│   └── test-runner.md           # Haiku - test execution
+└── skills/
+    └── skill-loader/            # On-demand skill routing
 
-MCP Servers (configured in ~/.claude.json):
-├── aivectormemory               # 🔍 Vector memory + issue/task
-├── memorygraph                  # 🕸️ Graph memory + relationships
-├── mnemex                       # 💻 Code intelligence
-└── github                       # 🐙 GitHub API
+~/.claude.json                   # MCP server registrations (auto-configured)
+~/.claudeignore                  # Build artifact exclusion (auto-deployed)
+
+MCP Servers:
+├── aivectormemory               # Vector memory + issue/task
+├── memorygraph                  # Graph memory + relationships
+└── mnemex                       # Code intelligence (optional, needs Ollama)
 ```
 
----
-
-## 📊 Token Savings Summary
-
-| Metric | Before | After | Reduction |
-|--------|--------|-------|-----------|
-| CLI output tokens | 100% raw | 3-10% | **🟢 90-97%** |
-| Input file tokens | 100% raw | 20-50% | **🟢 50-80%** |
-| Test output tokens | 100% raw | ~10% | **🟢 ~90%** |
-| System prompt skills | ~10K/turn | ~2K/turn | **🟢 ~80%** |
-| Model cost (delegated) | 100% (Opus) | ~40% (Sonnet/Haiku) | **🟢 ~60%** |
-| Thinking tokens | Maximum | ~50% (high) | **🟢 ~50%** |
-| Memory context | Variable | <200 lines | **🟢 Fixed** |
-| Cross-session knowledge | Lost | Persistent | **🟢 ∞** |
-
----
-
-## 🏆 Comparison
-
-| Capability | 续航计划 | Context Engineering Kit | CCUsage/CCFlare | AIVectorMemory |
-|-----------|---------|----------------------|----------------|----------------|
-| CLI output compression | ✅ 97% (RTK) | ❌ | ❌ | ❌ |
-| Input compression | ✅ 2-5x (LLMLingua) | ❌ | ❌ | ❌ |
-| Skill tiering | ✅ ~8K saved/turn | ❌ | ❌ | ❌ |
-| Model routing | ✅ Sonnet/Haiku | ✅ Sub-agents | ❌ | ❌ |
-| Thinking budget | ✅ 3-level control | ❌ | ❌ | ❌ |
-| Safety hooks | ✅ Block + Warn | ❌ | ❌ | ❌ |
-| Vector memory | ✅ (integrated) | ❌ | ❌ | ✅ Native |
-| Graph memory | ✅ (integrated) | ❌ | ❌ | ❌ |
-| Code intelligence | ✅ (mnemex) | ❌ | ❌ | ❌ |
-| Quality engineering | ❌ | ✅ 11 plugins | ❌ | ❌ |
-| Usage dashboard | ❌ | ❌ | ✅ Native | ❌ |
-| **Coverage** | **9/11** | **2/11** | **1/11** | **1/11** |
-
----
-
 <details>
-<summary>🔄 Rollback</summary>
-
-Every operation is reversible:
+<summary>Rollback</summary>
 
 ```bash
-python scripts/rollback.py                                    # Restore skill manifests
-python scripts/rollback.py ~/.claude/skills-archive/pre-tiering-20260406/  # Specific backup
-rm ~/.local/bin/rtk                                           # Remove RTK
-pip uninstall aivectormemory memorygraphMCP                   # Remove memory backends
+python scripts/rollback.py       # Restore skill manifests from backup
+rm ~/.local/bin/rtk.exe          # Remove RTK
+pip uninstall aivectormemory memorygraphMCP  # Remove memory backends
+# Hooks and MCP configs can be manually removed from settings.json / .claude.json
 ```
 
 </details>
 
+---
+
 ## 🙏 Credits
 
-This toolkit integrates and builds upon:
+- [AIVectorMemory](https://github.com/Edlineas/aivectormemory) — Vector memory + issue tracking
+- [MemoryGraph](https://github.com/memory-graph/memory-graph) — Graph-based relationship memory
+- [LLMLingua](https://github.com/microsoft/LLMLingua) — Token-level prompt compression
+- [OpenHands](https://github.com/All-Hands-AI/OpenHands) — Safety hook architecture inspiration
 
-- [**AIVectorMemory**](https://github.com/Edlineas/aivectormemory) by Edlineas — Vector memory + issue tracking
-- [**MemoryGraph**](https://github.com/memory-graph/memory-graph) by memory-graph — Graph-based relationship memory
-- [**LLMLingua**](https://github.com/microsoft/LLMLingua) by Microsoft Research — Token-level prompt compression
-- [**awesome-claude-code**](https://github.com/hesreallyhim/awesome-claude-code) — Community hooks and patterns
-- [**OpenHands**](https://github.com/All-Hands-AI/OpenHands) — Safety hook architecture inspiration
+## Requirements
 
-## 📋 Requirements
+- [Claude Code](https://code.claude.com/) CLI
+- Python 3.10+
+- Windows 10/11 (full support) or Mac/Linux (partial — no RTK)
 
-- [Claude Code](https://code.claude.com/) CLI installed
-- Python 3.10+ (for memory backends and tiering scripts)
-- Windows 10/11, macOS, or Linux
+## License
+
+MIT
 
 ---
 
 <div align="center">
 
-## ⭐ Star History
-
 [![Star History Chart](https://api.star-history.com/svg?repos=qiuxinyuan321/endurance-plan&type=Date)](https://star-history.com/#qiuxinyuan321/endurance-plan&Date)
-
-**If this toolkit saves you tokens, give it a ⭐!**
-
-MIT License · [Report Issue](https://github.com/qiuxinyuan321/endurance-plan/issues)
 
 </div>

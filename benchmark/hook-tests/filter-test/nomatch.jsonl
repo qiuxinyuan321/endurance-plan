@@ -1,0 +1,4 @@
+{"tool_input":{"command":"npm run build"}}
+{"tool_input":{"command":"python app.py"}}
+{"tool_input":{"command":"git status"}}
+{"tool_input":{"command":"ls -la"}}

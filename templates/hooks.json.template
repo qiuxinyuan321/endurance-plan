@@ -7,12 +7,12 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ~/.claude/hooks/safety-guard.sh",
+            "command": "python ~/.claude/hooks/safety-guard.py",
             "_comment": "Block dangerous commands (rm -rf /, force push, etc.)"
           },
           {
             "type": "command",
-            "command": "bash ~/.claude/hooks/filter-test-output.sh",
+            "command": "python ~/.claude/hooks/filter-test-output.py",
             "_comment": "Filter test output to failures + summary only"
           }
         ]
