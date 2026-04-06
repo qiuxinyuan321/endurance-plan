@@ -18,7 +18,7 @@
 # }
 
 input=$(cat)
-cmd=$(echo "$input" | python3 -c "import sys,json; print(json.load(sys.stdin).get('tool_input',{}).get('command',''))" 2>/dev/null)
+cmd=$(echo "$input" | python -c "import sys,json; print(json.load(sys.stdin).get('tool_input',{}).get('command',''))" 2>/dev/null)
 
 # Detect test runner commands
 if [[ "$cmd" =~ ^(npm\ test|npx\ jest|npx\ vitest|pytest|python\ -m\ pytest|go\ test|cargo\ test|dotnet\ test|mvn\ test|gradle\ test) ]]; then

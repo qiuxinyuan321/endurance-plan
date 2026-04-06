@@ -18,7 +18,7 @@
 # }
 
 input=$(cat)
-cmd=$(echo "$input" | python3 -c "import sys,json; print(json.load(sys.stdin).get('tool_input',{}).get('command',''))" 2>/dev/null)
+cmd=$(echo "$input" | python -c "import sys,json; print(json.load(sys.stdin).get('tool_input',{}).get('command',''))" 2>/dev/null)
 
 # Dangerous patterns that should be blocked or warned
 BLOCKED_PATTERNS=(
@@ -29,8 +29,8 @@ BLOCKED_PATTERNS=(
   "dd if=/dev/zero"
   "> /dev/sda"
   "chmod -R 777 /"
-  "curl.*|.*bash"
-  "wget.*|.*sh"
+  "curl.*\\|.*bash"
+  "wget.*\\|.*sh"
 )
 
 WARN_PATTERNS=(
